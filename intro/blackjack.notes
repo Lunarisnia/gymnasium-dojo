@@ -1,0 +1,112 @@
+"""
+========
+EPISODE 1
+========
+
+
+1st Iteration
+
+q_values = {
+   (13, 6, False): [0. 0.01]
+}
+training_error = [1.0]
+
+lr = 0.01
+obs = (13, 6, False)
+next_obs = (20, 16, False)
+reward = 1.0
+action = 1
+terminated = False
+truncated = False
+info = {}
+discount_factor = 0.95
+
+future_q_value = 1 * 0 = 0
+temporal_difference = 1 + 0.95 * 0 - 0 = 1.0
+q_values[(13, 6, False)][1] = 0.0 + 0.01 * 1.0 = 0.0 + 0.01 = 0.01
+training_error = [] = [1.0]
+
+
+2nd Iteration
+q_values = {
+  (13, 6, False): [0. 0.01],
+  (20, 16, False): [-0.01 0.],
+}
+training_error = [1.0, -1]
+
+lr = 0.01
+obs = (20, 16, False)
+next_obs = (29, 20, False)
+reward = -1.0
+action = 0
+terminated = True
+truncated = False
+info = {}
+discount_factor = 0.95
+
+future_q_value = 0 * 0 = 0
+temporal_difference = -1 + 0.95 * 0 - 0 = -1
+
+
+epsilon = 0.99999
+
+
+
+=======
+EPISODE 2
+=======
+
+Iteration: 1
+q_values = {
+  (13, 6, False): [0. 0.01],
+  (20, 16, False): [-0.01 0.],
+  (2, 10, False): [0. 0.015]
+}
+
+lr = 0.01
+obs = (2, 10, False)
+next_obs = (12, 11, False)
+reward = 1.5
+action = 1
+terminated = False
+truncated = False
+info = {}
+discount_factor = 0.95
+
+future_q_value = 1 * 0 = 0
+temporal_difference = 1.5 + 0.95 * 0 - 0 = 1.5
+q_values[(2, 10, False)][1] = 0.0 + 0.01 * 1.5 = 0.015 + 0 = 0.015
+training_error = [1.0, -1]
+append = [1.0, -1, 1.5]
+
+
+EPSILON = 0.99999
+
+ITERATION: 2
+q_values = {
+  (13, 6, False): [0. 0.01],
+  (20, 16, False): [-0.01 0.],
+  (2, 10, False): [0. 0.03485]
+}
+
+lr = 0.01
+obs = (2, 10, False)
+next_obs = (21, 15, False)
+reward = 2
+action = 1
+terminated = False
+truncated = False
+info = {}
+discount_factor = 0.95
+q_values[(2, 10, False)][1] = 0.015
+temporal_difference = 2 + 0.95 * 0 - 0.015 = 1.985
+
+
+q_values[(2, 10, False)][1] = 0.015
+q_values[(2, 10, False)][1] = 0.015 + 0.01 * 1.985 = 0.015 + 0.01985 = 0.03485
+
+training_error = [1.0, -1]
+append = [1.0, -1, 1.5, 1.985]
+
+EPSILON = 0.99999
+"""

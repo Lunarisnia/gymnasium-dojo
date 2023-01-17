@@ -95,7 +95,16 @@ class BlackjackAgent:
     def get_action(self, obs: tuple[int, int, bool]) -> int:
         """
         Returns the best action with probability (1 - epsilon)
-        otherwise a random action with probability epsilon to ensure exploration
+        otherwise a random action with probability epsilon to ensure exploration.
+
+        The functions that actually generate what action to take, at the beginning
+        it will always be generating random action because epsilon is 1.0 and 
+        this function cannot generate number bigger than 1.0. But then those
+        value is used to create a Q-Table with values tuned with each Episode and
+        the epsilon gradually decay untill a certain state where the condition
+        is not fulfilled and then instead of generating a random action, try
+        and see if it has encountered this situation before and choose which action
+        has the biggest value. Also called being greedy.
         """
         # With probability epsilon return a random action to explore the environment
         if np.random.random() < self.epsilon:
@@ -117,39 +126,45 @@ class BlackjackAgent:
         # q_values = {
         #   (13, 6, False): [0. 0.01],
         #   (20, 16, False): [-0.01 0.],
+        #   (2, 10, False): [0. 0.03485]
         # }
 
         # lr = 0.01
         # obs = (2, 10, False)
-        # next_obs = (12, 11, False)
-        # reward = 1.5
+        # next_obs = (21, 15, False)
+        # reward = 2
         # action = 1
         # terminated = False
         # truncated = False
         # info = {}
         # discount_factor = 0.95
         future_q_value = (not terminated) * np.max(self.q_values[next_obs])
-        # q_values[(12, 11, False)] = [0. 0.] = 0.
+        # q_values[(21, 15, False)] = [0. 0.] = 0.
         # future_q_value = 1 * 0 = 0
 
         # Why do we need to subtract the future q-value with the old one?
+        # Because we need to tune on what's the best option to take in this situation
+        # based on the previous observation, in subsequent iteration this value will
+        # further tuned untill the best value is found.
         temporal_difference = (
             reward + self.discount_factor *
             future_q_value - self.q_values[obs][action]
         )
         # PEMDAS: Parenthesis, Exponential, Multiplication, Addition, Subtraction
-        # q_values[(2, 10, False)][0] = 0.0
-        # temporal_difference = 1.5 + 0.95 * 0 - 0 = -1
+        # q_values[(2, 10, False)][1] = 0.015
+        # temporal_difference = 2 + 0.95 * 0 - 0.015 = 1.985
 
+        # Hang on: this is ab + c, interesting....
+        # Maybe this is where you slip in Deep Learning.
         self.q_values[obs][action] = (
             self.q_values[obs][action] + self.lr * temporal_difference
         )
-        # q_values[(20, 16, False)][0] = 0.0
-        # q_values[(20, 16, False)][0] = 0.0 + 0.01 * -1.0 = 0.0 - 0.01 = -0.01
+        # q_values[(2, 10, False)][1] = 0.015
+        # q_values[(2, 10, False)][1] = 0.015 + 0.01 * 1.985 = 0.015 + 0.01985 = 0.03485
         
         self.training_error.append(temporal_difference)
-        # training_error = [1.0]
-        # append = [1.0, -1]
+        # training_error = [1.0, -1]
+        # append = [1.0, -1, 1.5, 1.985]
 
     def decay_epsilon(self):
         self.epsilon = max(self.final_epsilon,
@@ -172,67 +187,6 @@ agent = BlackjackAgent(learning_rate=learning_rate,
                        final_epsilon=final_epsilon)
  
 # Training
-
-"""
-========
-EPISODE 1
-========
-
-
-1st Iteration
-
-q_values = {
-   (13, 6, False): [0. 0.01]
-}
-training_error = [1.0]
-
-lr = 0.01
-obs = (13, 6, False)
-next_obs = (20, 16, False)
-reward = 1.0
-action = 1
-terminated = False
-truncated = False
-info = {}
-discount_factor = 0.95
-
-future_q_value = 1 * 0 = 0
-temporal_difference = 1 + 0.95 * 0 - 0 = 1.0
-q_values[(13, 6, False)][1] = 0.0 + 0.01 * 1.0 = 0.0 + 0.01 = 0.01
-training_error = [] = [1.0]
-
-
-2nd Iteration
-q_values = {
-  (13, 6, False): [0. 0.01],
-  (20, 16, False): [-0.01 0.],
-}
-training_error = [1.0, -1]
-
-lr = 0.01
-obs = (20, 16, False)
-next_obs = (29, 20, False)
-reward = -1.0
-action = 0
-terminated = True
-truncated = False
-info = {}
-discount_factor = 0.95
-
-future_q_value = 0 * 0 = 0
-temporal_difference = -1 + 0.95 * 0 - 0 = -1
-
-
-epsilon = 0.99999
-
-
-
-=======
-EPISODE 2
-=======
-"""
-
-# Todo: Create an interactive menu to view value during training
 
 # Record cumulative rewards and episode lengths
 env = gym.wrappers.RecordEpisodeStatistics(env, deque_size=n_episodes)
